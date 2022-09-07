@@ -10,7 +10,8 @@ import {
   query,
   where,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+  getDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -32,7 +33,7 @@ const db = getFirestore();
 const colRef = collection(db, "books");
 
 // quaries
-const q = query(colRef, where("author", "==", "milindi"), orderBy("createdAt"))
+const q = query(colRef, orderBy("createdAt"));
 
 //real time collection data
 onSnapshot(q, (data) => {
@@ -51,8 +52,7 @@ addBookForm.addEventListener("submit", (e) => {
   addDoc(colRef, {
     title: addBookForm.title.value,
     author: addBookForm.author.value,
-    createdAt: serverTimestamp()
-
+    createdAt: serverTimestamp(),
   }).then(() => {
     addBookForm.reset();
   });
@@ -66,6 +66,18 @@ deleteBookForm
 
     const docRef = doc(db, "books", deleteBookForm.id.value);
     deleteDoc(docRef);
-  }).then(() => {
+  })
+  .then(() => {
     deleteBookForm.reset();
   });
+
+// get a single document
+const docRef = doc(db, "books", "Rffl65CKrWqOMedWWkcL");
+
+getDoc(docRef).then((doc) => {
+  console.log(doc.data(), doc.id);
+});
+
+onSnapshot(docRef, (doc)=>{
+  console.log(doc.data(), doc.id);
+})
