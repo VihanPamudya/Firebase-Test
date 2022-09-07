@@ -14,6 +14,12 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signOut,
+  signInWithEmailAndPassword
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDtC7dDXeXrRjgA8buXOLmBmXO_LT3dbnI",
@@ -29,6 +35,7 @@ initializeApp(firebaseConfig);
 
 //init services
 const db = getFirestore();
+const auth = getAuth();
 
 //collection ref
 const colRef = collection(db, "books");
@@ -61,16 +68,14 @@ addBookForm.addEventListener("submit", (e) => {
 
 // deleting documents
 const deleteBookForm = document.querySelector(".delete");
-deleteBookForm
-  .addEventListener("submit", (e) => {
-    e.preventDefault();
+deleteBookForm.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-    const docRef = doc(db, "books", deleteBookForm.id.value);
-    deleteDoc(docRef);
-  })
-  .then(() => {
+  const docRef = doc(db, "books", deleteBookForm.id.value);
+  deleteDoc(docRef).then(() => {
     deleteBookForm.reset();
   });
+});
 
 // get a single document
 const docRef = doc(db, "books", "Rffl65CKrWqOMedWWkcL");
@@ -91,4 +96,51 @@ updateForm.addEventListener("submit", (e) => {
   }).then(() => {
     updateForm.reset();
   });
+});
+
+// signup users
+const signupForm = document.querySelector(".signup");
+signupForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const email = signupForm.email.value;
+  const password = signupForm.password.value;
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((cred) => {
+      console.log("user created:", cred.user);
+      signupForm.reset();
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+});
+
+// login and logout
+const loginForm = document.querySelector(".login");
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const email = loginForm.email.value;
+  const password = loginForm.password.value;
+
+  signInWithEmailAndPassword(auth,email,password)
+  .then((cred) => {
+    console.log("user logedin:", cred.user);
+    loginForm.reset();
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
+});
+
+const logoutButton = document.querySelector(".logout");
+logoutButton.addEventListener("click", () => {
+  signOut(auth)
+    .then(() => {
+      console.log("The user signed out");
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 });
