@@ -12,6 +12,7 @@ import {
   orderBy,
   serverTimestamp,
   getDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -74,10 +75,20 @@ deleteBookForm
 // get a single document
 const docRef = doc(db, "books", "Rffl65CKrWqOMedWWkcL");
 
-getDoc(docRef).then((doc) => {
+onSnapshot(docRef, (doc) => {
   console.log(doc.data(), doc.id);
 });
 
-onSnapshot(docRef, (doc)=>{
-  console.log(doc.data(), doc.id);
-})
+// updating documents
+const updateForm = document.querySelector(".update");
+updateForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const docRef = doc(db, "books", updateForm.id.value);
+
+  updateDoc(docRef, {
+    title: "update title",
+  }).then(() => {
+    updateForm.reset();
+  });
+});
